@@ -14,12 +14,12 @@ func TestNextToken(t *testing.T) {
 		expectedLiteral string
 	}{
 		{token.ASSIGN, "="},
-		{token.COMMA, ","},
 		{token.PLUS, "+"},
 		{token.LPAREN, "("},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
+		{token.COMMA, ","},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
@@ -30,8 +30,8 @@ func TestNextToken(t *testing.T) {
 
 		tok := lexer.NextToken()
 
-		if tok.TokenType != tt.expectedType {
-			t.Fatalf("test [%d]: wrong token. expected token %q got %q", i, tt.expectedType, tok.TokenType)
+		if tok.Type != tt.expectedType {
+			t.Fatalf("test [%d]: wrong token. expected token %q got %q", i, tt.expectedType, tok.Type)
 		}
 
 		if tok.Literal != tt.expectedLiteral {
