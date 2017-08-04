@@ -12,39 +12,78 @@ type Lexer struct {
 }
 
 func New(input string) *Lexer {
-	return &Lexer{input: input}
+
+	l := &Lexer{input: input}
+	l.readChar()
+	return l
 }
 
 func (l *Lexer) NextToken() token.Token {
 
-	l.readChar()
+	var tok token.Token
+	l.skipWhiteSpaces()
 
-	var x token.Token
 	switch l.ch {
 
 	case '=':
-		x = newToken(token.ASSIGN, l.ch)
+		tok = newToken(token.ASSIGN, l.ch)
 	case '+':
-		x = newToken(token.PLUS, l.ch)
+		tok = newToken(token.PLUS, l.ch)
 	case ',':
-		x = newToken(token.COMMA, l.ch)
+		tok = newToken(token.COMMA, l.ch)
 	case ';':
-		x = newToken(token.SEMICOLON, l.ch)
+		tok = newToken(token.SEMICOLON, l.ch)
 	case '(':
-		x = newToken(token.LPAREN, l.ch)
+		tok = newToken(token.LPAREN, l.ch)
 	case ')':
-		x = newToken(token.RPAREN, l.ch)
+		tok = newToken(token.RPAREN, l.ch)
 	case '{':
-		x = newToken(token.LBRACE, l.ch)
+		tok = newToken(token.LBRACE, l.ch)
 	case '}':
-		x = newToken(token.RBRACE, l.ch)
+		tok = newToken(token.RBRACE, l.ch)
 
 	case 0:
-		x.Literal = ""
-		x.Type = token.EOF
+		tok.Literal = ""
+		tok.Type = token.EOF
+	default:
+		if isLetter(l.ch) {
+			tok.Literal = l.readIdentifier()
+			tok.Type = token.LookupIdentifier(tok.Literal)
+			return tok
+		} else if isNumeric(l.ch) {
+			tok.Literal = l.readNumber()
+			tok.Type = token.INT
+			return tok
+		} else {
+			tok = newToken(token.ILLEGAL, l.ch)
+		}
 	}
 
-	return x
+	l.readChar()
+	return tok
+}
+
+func (l *Lexer) readNumber() string {
+	curPosition := l.position
+	for isNumeric(l.ch) {
+		l.readChar()
+	}
+	return l.input[curPosition:l.position]
+}
+
+func (l *Lexer) readIdentifier() string {
+	curPosition := l.position
+	for isLetter(l.ch) {
+		l.readChar()
+	}
+
+	return l.input[curPosition:l.position]
+}
+
+func (l *Lexer) skipWhiteSpaces() {
+	for isWhitespace(l.ch) {
+		l.readChar()
+	}
 }
 
 func newToken(tokenType token.TokenType, literal byte) token.Token {
@@ -61,4 +100,16 @@ func (l *Lexer) readChar() {
 
 	l.position = l.readPosition
 	l.readPosition += 1
+}
+
+func isLetter(ch byte) bool {
+	return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_'
+}
+
+func isWhitespace(ch byte) bool {
+	return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n'
+}
+
+func isNumeric(ch byte) bool {
+	return ch >= '0' && ch <= '9'
 }
