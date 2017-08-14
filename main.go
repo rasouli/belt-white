@@ -15,5 +15,5 @@ func main(){
 	}
 
 	fmt.Printf("%s [Pretty Serious WhiteBelt Stage Interpreter Experience] \n",user.Username)
-	repl.Start(os.Stdout,os.Stdout)
+	repl.Start(os.Stdin,os.Stdout)
 }
